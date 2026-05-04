@@ -92,7 +92,7 @@ function colorForStatus(status: string) {
 
 function makePdf(filename: string) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  doc.setAutoPageBreak(false);
+  (doc as any).setAutoPageBreak(false);
   doc.setDrawColor(226, 232, 240);
   doc.setTextColor(30, 41, 59);
   doc.setFont("helvetica", "normal");
