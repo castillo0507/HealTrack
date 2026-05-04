@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { Droplets, Plus } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { AuthGuard } from "@/components/auth-guard";
@@ -92,6 +93,11 @@ export default function WaterPage() {
             <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500 rounded-2xl border border-brand-200 bg-brand-50 p-4 dark:border-slate-700 dark:bg-slate-900/30">
               <p className="mb-2 font-semibold text-slate-800 dark:text-slate-100">{suggestion.comment}</p>
               <p className="text-sm text-slate-600 dark:text-slate-300">{suggestion.suggestion}</p>
+              <div className="mt-4">
+                <Link href="/dashboard" className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-700">
+                  Return to Dashboard
+                </Link>
+              </div>
             </div>
           )}
         </Card>

@@ -22,9 +22,7 @@ export default function ProfilePage() {
   const [waterGoal, setWaterGoal] = useState(String(goals.waterCups));
   const [sleepGoal, setSleepGoal] = useState(String(goals.sleepHours));
   const [savedMessage, setSavedMessage] = useState("");
-  const [connectionMessage, setConnectionMessage] = useState("");
   const [exportMessage, setExportMessage] = useState("");
-  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
   function onSave(event: FormEvent<HTMLFormElement>) {
@@ -40,34 +38,6 @@ export default function ProfilePage() {
     setSavedMessage("Profile and health targets saved.");
   }
 
-  async function onTestSupabaseConnection() {
-    setIsCheckingConnection(true);
-    setConnectionMessage("");
-
-    try {
-      const response = await fetch("/api/supabase/health", {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      const payload = (await response.json()) as {
-        ok?: boolean;
-        message?: string;
-        projectRef?: string;
-      };
-
-      if (!response.ok || !payload.ok) {
-        setConnectionMessage(payload.message ?? "Unable to connect to Supabase.");
-        return;
-      }
-
-      setConnectionMessage(`Connected to Supabase project: ${payload.projectRef ?? "unknown"}.`);
-    } catch {
-      setConnectionMessage("Connection test failed. Please check your network and Supabase env settings.");
-    } finally {
-      setIsCheckingConnection(false);
-    }
-  }
 
   function onSignOut() {
     logout();
@@ -223,7 +193,7 @@ export default function ProfilePage() {
           </Card>
 
           <Card>
-            <h3 className="mb-3 text-lg font-black text-slate-800 dark:text-slate-100">Manage Health Categories</h3>
+            <h3 className="mb-3 text-lg font-black text-slate-800">Manage Health Categories</h3>
             <div className="grid gap-2 sm:grid-cols-2">
               {allCategories.map((category) => {
                 const selected = categories.includes(category);
@@ -244,62 +214,47 @@ export default function ProfilePage() {
             </div>
           </Card>
 
-          <Card className="bg-brand-50 dark:bg-brand-500/10">
-            <p className="flex items-center gap-2 text-sm font-semibold text-brand-700 dark:text-brand-300">
+          <Card className="bg-white">
+            <p className="flex items-center gap-2 text-sm font-semibold text-brand-700">
               <ShieldCheck className="h-4 w-4" /> Privacy Status
             </p>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">All data stays local on your device. You control what to track and can update consent anytime.</p>
+            <p className="mt-2 text-sm text-slate-600">All data stays local on your device. You control what to track and can update consent anytime.</p>
           </Card>
 
-          <Card>
-            <h3 className="mb-2 text-lg font-black text-slate-800 dark:text-slate-100">Supabase Connection</h3>
-            <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
-              Use your project URL and anon key in <span className="font-semibold">.env.local</span>, then test connectivity here.
-            </p>
-            <button
-              type="button"
-              onClick={onTestSupabaseConnection}
-              disabled={isCheckingConnection}
-              className="w-full rounded-xl bg-slate-900 py-3 font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
-            >
-              {isCheckingConnection ? "Testing connection..." : "Test Supabase Connection"}
-            </button>
-            {connectionMessage ? <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{connectionMessage}</p> : null}
-          </Card>
 
           <Card>
-            <h3 className="mb-2 text-lg font-black text-slate-800 dark:text-slate-100">Account</h3>
-            <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">Sign out of the current account to return to the login screen.</p>
+            <h3 className="mb-2 text-lg font-black text-slate-800">Account</h3>
+            <p className="mb-3 text-sm text-slate-600">Sign out of the current account to return to the login screen.</p>
             <div className="space-y-2">
               <button
                 type="button"
                 onClick={onExportAllData}
                 disabled={isExporting}
-                className="w-full rounded-xl border border-brand-200 bg-brand-50 py-3 font-bold text-brand-700 transition hover:border-brand-300 hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-brand-700/40 dark:bg-brand-500/10 dark:text-brand-200"
+                className="w-full rounded-xl border border-brand-200 bg-white py-3 font-bold text-brand-700 transition hover:border-brand-300 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isExporting ? "Exporting PDF..." : "Export All Data"}
               </button>
               <button
                 type="button"
                 onClick={onSignOut}
-                className="w-full rounded-xl border border-rose-200 bg-rose-50 py-3 font-bold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300"
+                className="w-full rounded-xl border border-rose-200 bg-white py-3 font-bold text-rose-700 transition hover:border-rose-300 hover:bg-rose-50"
               >
                 Sign Out
               </button>
             </div>
-            {exportMessage ? <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{exportMessage}</p> : null}
+            {exportMessage ? <p className="mt-3 text-sm text-slate-600">{exportMessage}</p> : null}
           </Card>
 
           <Card>
-            <h3 className="mb-3 text-lg font-black text-slate-800 dark:text-slate-100">Quick Actions</h3>
+            <h3 className="mb-3 text-lg font-black text-slate-800">Quick Actions</h3>
             <div className="space-y-2">
-              <Link href="/steps" className="block rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-semibold text-slate-700 transition hover:border-brand-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <Link href="/steps" className="block rounded-xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 shadow-sm transition hover:border-brand-300 hover:bg-slate-50">
                 Manage Steps Target
               </Link>
-              <Link href="/categories" className="block rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-semibold text-slate-700 transition hover:border-brand-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <Link href="/categories" className="block rounded-xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 shadow-sm transition hover:border-brand-300 hover:bg-slate-50">
                 Manage Health Categories
               </Link>
-              <Link href="/privacy" className="block rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-semibold text-slate-700 transition hover:border-brand-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <Link href="/privacy" className="block rounded-xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700 shadow-sm transition hover:border-brand-300 hover:bg-slate-50">
                 Privacy Settings
               </Link>
             </div>

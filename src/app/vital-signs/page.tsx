@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
 import { Clock3, Thermometer } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { AuthGuard } from "@/components/auth-guard";
@@ -18,14 +19,14 @@ function formatLoggedAt(date: string) {
 
 function severityStyles(severity: MetricAnalysis["severity"]) {
   if (severity === "urgent") {
-    return "border-brand-200 bg-brand-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-100";
+    return "border-brand-200 bg-brand-50 text-slate-700";
   }
 
   if (severity === "watch") {
-    return "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-100";
+    return "border-slate-200 bg-slate-50 text-slate-700";
   }
 
-  return "border-brand-200 bg-brand-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-100";
+  return "border-brand-200 bg-brand-50 text-slate-700";
 }
 
 export default function VitalSignsPage() {
@@ -112,14 +113,14 @@ export default function VitalSignsPage() {
           <Card>
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 className="mb-1 flex items-center gap-2 text-2xl font-black text-slate-800 dark:text-slate-100">
+                <h2 className="mb-1 flex items-center gap-2 text-2xl font-black text-slate-800">
                   <Thermometer className="h-6 w-6 text-brand-700" /> Vital Signs Log
                 </h2>
                 <p className="text-sm text-slate-500">Capture blood pressure, oxygen saturation, and temperature in one quick entry.</p>
               </div>
-              <div className="rounded-2xl bg-brand-50 px-3 py-2 text-right dark:bg-slate-900/30">
+              <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-right shadow-sm">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Latest Reading</p>
-                <p className="text-lg font-black text-brand-700 dark:text-brand-300">{latestEntry ? `${latestEntry.systolic}/${latestEntry.diastolic}` : "—"}</p>
+                <p className="text-lg font-black text-brand-700">{latestEntry ? `${latestEntry.systolic}/${latestEntry.diastolic}` : "—"}</p>
               </div>
             </div>
 
@@ -129,7 +130,7 @@ export default function VitalSignsPage() {
               <Stat label="Temperature" value={latestEntry ? `${latestEntry.temperature.toFixed(1)}°${latestEntry.temperatureUnit}` : "—"} hint="Body temperature" />
             </div>
 
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <p className="mb-2 text-xs font-black uppercase tracking-[0.2em] text-slate-500">Tracking progress</p>
               <ProgressBar value={categoryProgress["Vital Signs"]} className="mb-2" />
               <p className="text-sm text-slate-500">{Math.round(categoryProgress["Vital Signs"])}% of your vital-sign tracking target is complete.</p>
@@ -138,7 +139,7 @@ export default function VitalSignsPage() {
             <form className="mt-6 space-y-3" onSubmit={submitVitalSigns}>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="systolic" className="mb-1 block text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  <label htmlFor="systolic" className="mb-1 block text-sm font-semibold text-slate-600">
                     Systolic
                   </label>
                   <input
@@ -149,13 +150,13 @@ export default function VitalSignsPage() {
                     value={systolic}
                     onChange={(event) => setSystolic(event.target.value)}
                     placeholder="120"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     autoFocus
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="diastolic" className="mb-1 block text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  <label htmlFor="diastolic" className="mb-1 block text-sm font-semibold text-slate-600">
                     Diastolic
                   </label>
                   <input
@@ -166,14 +167,14 @@ export default function VitalSignsPage() {
                     value={diastolic}
                     onChange={(event) => setDiastolic(event.target.value)}
                     placeholder="80"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="spo2" className="mb-1 block text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  <label htmlFor="spo2" className="mb-1 block text-sm font-semibold text-slate-600">
                     SpO2 (%)
                   </label>
                   <input
@@ -185,12 +186,12 @@ export default function VitalSignsPage() {
                     value={spo2}
                     onChange={(event) => setSpo2(event.target.value)}
                     placeholder="98"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="temperature" className="mb-1 block text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  <label htmlFor="temperature" className="mb-1 block text-sm font-semibold text-slate-600">
                     Temperature
                   </label>
                   <div className="grid grid-cols-[1fr_auto] gap-2">
@@ -201,12 +202,13 @@ export default function VitalSignsPage() {
                       value={temperature}
                       onChange={(event) => setTemperature(event.target.value)}
                       placeholder={temperatureUnit === "C" ? "36.6" : "98.6"}
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     />
                     <select
                       value={temperatureUnit}
                       onChange={(event) => handleTemperatureUnitChange(event.target.value as "C" | "F")}
-                      className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"
+                      aria-label="Temperature unit"
+                      className="rounded-2xl border border-slate-200 bg-white px-3 py-3 outline-none transition focus:border-brand-500"
                     >
                       <option value="C">C</option>
                       <option value="F">F</option>
@@ -232,7 +234,7 @@ export default function VitalSignsPage() {
                     <p className="mb-2 text-xs font-black uppercase tracking-[0.18em]">Insights</p>
                     <ul className="space-y-2 text-sm">
                       {analysis.insights.map((item) => (
-                        <li key={item} className="rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-800/60">
+                        <li key={item} className="rounded-xl bg-white px-3 py-2">
                           {item}
                         </li>
                       ))}
@@ -242,29 +244,34 @@ export default function VitalSignsPage() {
                     <p className="mb-2 text-xs font-black uppercase tracking-[0.18em]">Recommendations</p>
                     <ul className="space-y-2 text-sm">
                       {analysis.recommendations.map((item) => (
-                        <li key={item} className="rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-800/60">
+                        <li key={item} className="rounded-xl bg-white px-3 py-2">
                           {item}
                         </li>
                       ))}
                     </ul>
                   </div>
                 </div>
+                <div className="mt-4">
+                  <Link href="/dashboard" className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-700">
+                    Return to Dashboard
+                  </Link>
+                </div>
               </div>
             )}
           </Card>
 
           <Card>
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-black text-slate-800 dark:text-slate-100">
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-black text-slate-800">
               <Clock3 className="h-5 w-5 text-brand-700" /> Recent Vital Signs Readings
             </h3>
 
             <div className="space-y-3">
               {vitalSignsEntries.length > 0 ? (
                 vitalSignsEntries.slice(0, 6).map((entry) => (
-                  <div key={entry.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                  <div key={entry.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-lg font-black text-slate-900 dark:text-slate-100">{entry.systolic}/{entry.diastolic} mmHg</p>
+                        <p className="text-lg font-black text-slate-900">{entry.systolic}/{entry.diastolic} mmHg</p>
                         <p className="text-sm text-slate-500">SpO2 {entry.spo2}% · Temp {entry.temperature.toFixed(1)}°{entry.temperatureUnit}</p>
                       </div>
                       <p className="text-right text-xs text-slate-500">{formatLoggedAt(entry.date)}</p>
@@ -272,7 +279,7 @@ export default function VitalSignsPage() {
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800">
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
                   No vital sign readings logged yet. Add a reading to get a tailored interpretation.
                 </div>
               )}

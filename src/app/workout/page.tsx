@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
 import { Activity, Bike, Dumbbell, Flame, HeartPulse, Plus, Repeat, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { AuthGuard } from "@/components/auth-guard";
@@ -458,6 +459,11 @@ export default function WorkoutPage() {
                 >
                   Log another workout
                 </button>
+                <div className="mt-4">
+                  <Link href="/dashboard" className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-700">
+                    Return to Dashboard
+                  </Link>
+                </div>
               </div>
             )}
           </Card>

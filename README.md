@@ -49,6 +49,6 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
 ```
 
 4. Restart the dev server (`npm run dev`).
-5. Open the Profile page and use the **Test Supabase Connection** button.
+
 
 If connection succeeds, the app is correctly wired to your Supabase project and ready for auth/database integration.

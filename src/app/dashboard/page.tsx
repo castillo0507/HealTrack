@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { ComponentType } from "react";
 import {
   Brain,
@@ -39,6 +39,23 @@ function Meter({ value }: { value: number }) {
 export default function DashboardPage() {
   const { today, goals, categories, profile, workouts, nutritionEntries, heartRateEntries, vitalSignsEntries, streak, updateProfile, updateGoals } = useHealth();
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [philippineDate, setPhilippineDate] = useState<string>("");
+
+  useEffect(() => {
+    const updatePhilippineDate = () => {
+      const now = new Date();
+      const phDate = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+      const dateStr = phDate.toLocaleDateString("en-US", { 
+        weekday: "long", 
+        year: "numeric", 
+        month: "long", 
+        day: "numeric" 
+      });
+      setPhilippineDate(dateStr);
+    };
+    
+    updatePhilippineDate();
+  }, []);
 
   const latestHeartRate = heartRateEntries[0];
   const latestVitalSigns = vitalSignsEntries[0];
@@ -176,7 +193,7 @@ export default function DashboardPage() {
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <p className="text-sm font-semibold">Hello, {profile.name.split(" ")[0]}!</p>
-                <p className="text-xs text-slate-500">Monday, April 27, 2026</p>
+                <p className="text-xs text-slate-500">{philippineDate}</p>
               </div>
               <button
                 type="button"
@@ -244,19 +261,6 @@ export default function DashboardPage() {
                   </article>
                 );
               })}
-            </section>
-
-            <section className="mt-4">
-              <h3 className="mb-2 text-sm font-semibold text-slate-700">Quick Actions</h3>
-              <div className="grid gap-2 sm:grid-cols-1">
-                <Link
-                  href="/analytics"
-                  className="rounded-xl border border-slate-200 bg-white p-4 text-center text-sm font-semibold text-slate-800 transition hover:border-brand-300"
-                >
-                  <span className="mb-1 block text-slate-500">↗</span>
-                  View Trends
-                </Link>
-              </div>
             </section>
 
             <div className="mt-4 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-slate-700">

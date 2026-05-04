@@ -4,6 +4,8 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabasePublicKey =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabasePublicKey);
 
 let browserClient: SupabaseClient | null = null;
@@ -37,4 +39,16 @@ export function getSupabaseServerClient() {
       autoRefreshToken: false,
     },
   });
+}
+
+export function getSupabaseAdminClient() {
+  const { supabaseUrl: url } = requireSupabaseEnv();
+
+  if (!supabaseServiceRoleKey) {
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY is missing. Set SUPABASE_SERVICE_ROLE_KEY in your server environment.",
+    );
+  }
+
+  return createClient(url, supabaseServiceRoleKey);
 }

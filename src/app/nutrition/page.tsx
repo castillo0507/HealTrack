@@ -1,10 +1,11 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
 import { Clock3, UtensilsCrossed } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { AuthGuard } from "@/components/auth-guard";
-import { Card, Stat } from "@/components/ui";
+import { Card, ProgressBar, Stat } from "@/components/ui";
 import { useHealth } from "@/lib/health-store";
 import { generateNutritionAnalysis, type MetricAnalysis } from "@/lib/suggestions";
 
@@ -71,14 +72,14 @@ function formatLoggedAt(date: string) {
 
 function severityStyles(severity: MetricAnalysis["severity"]) {
   if (severity === "urgent") {
-    return "border-brand-200 bg-brand-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-100";
+    return "border-brand-200 bg-brand-50 text-slate-700";
   }
 
   if (severity === "watch") {
-    return "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-100";
+    return "border-slate-200 bg-slate-50 text-slate-700";
   }
 
-  return "border-brand-200 bg-brand-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-100";
+  return "border-brand-200 bg-brand-50 text-slate-700";
 }
 
 function parseQuantity(input: string) {
@@ -233,14 +234,14 @@ export default function NutritionPage() {
           <Card>
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <h2 className="mb-1 flex items-center gap-2 text-2xl font-black text-slate-800 dark:text-slate-100">
+                <h2 className="mb-1 flex items-center gap-2 text-2xl font-black text-slate-800">
                   <UtensilsCrossed className="h-6 w-6 text-brand-700" /> Nutrition Log
                 </h2>
                 <p className="text-sm text-slate-500">Type what you ate, and the app estimates calories, macros, and daily impact automatically.</p>
               </div>
-              <div className="rounded-2xl bg-brand-50 px-3 py-2 text-right dark:bg-slate-900/30">
+              <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-right shadow-sm">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Today&apos;s Intake</p>
-                <p className="text-lg font-black text-brand-700 dark:text-brand-300">{today.nutritionCalories.toLocaleString()} kcal</p>
+                <p className="text-lg font-black text-brand-700">{today.nutritionCalories.toLocaleString()} kcal</p>
               </div>
             </div>
 
@@ -252,7 +253,7 @@ export default function NutritionPage() {
 
             <form className="mt-6 space-y-3" onSubmit={submitNutrition}>
               <div>
-                <label htmlFor="food-label" className="mb-1 block text-sm font-semibold text-slate-600 dark:text-slate-300">
+                <label htmlFor="food-label" className="mb-1 block text-sm font-semibold text-slate-600">
                   Food or meal
                 </label>
                 <input
@@ -261,21 +262,21 @@ export default function NutritionPage() {
                   value={foodLabel}
                   onChange={(event) => setFoodLabel(event.target.value)}
                   placeholder="Chicken, rice, salad"
-                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   autoFocus
                 />
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="meal-type" className="mb-1 block text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  <label htmlFor="meal-type" className="mb-1 block text-sm font-semibold text-slate-600">
                     Meal type
                   </label>
                   <select
                     id="meal-type"
                     value={mealType}
                     onChange={(event) => setMealType(event.target.value as MealType)}
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   >
                     {mealTypes.map((option) => (
                       <option key={option} value={option}>
@@ -286,7 +287,7 @@ export default function NutritionPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="servings" className="mb-1 block text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  <label htmlFor="servings" className="mb-1 block text-sm font-semibold text-slate-600">
                     Servings
                   </label>
                   <input
@@ -296,7 +297,7 @@ export default function NutritionPage() {
                     step="1"
                     value={servings}
                     onChange={(event) => setServings(event.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
               </div>
@@ -311,7 +312,7 @@ export default function NutritionPage() {
                       setMealType(preset.mealType);
                       setServings(String(preset.servings));
                     }}
-                    className="rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700 transition hover:bg-brand-100 dark:border-slate-700 dark:bg-slate-900/30 dark:text-slate-200"
+                    className="rounded-full border border-brand-200 bg-white px-3 py-1.5 text-xs font-semibold text-brand-700 transition hover:bg-brand-50"
                   >
                     {preset.label}
                   </button>
@@ -327,24 +328,24 @@ export default function NutritionPage() {
             </form>
 
             {preview && (
-              <div className="mt-6 rounded-2xl border border-brand-200 bg-brand-50 p-4 dark:border-slate-700 dark:bg-slate-900/30">
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Live Preview</p>
-                    <p className="text-lg font-black text-brand-700 dark:text-brand-300">{preview.calories.toLocaleString()} kcal</p>
+                    <p className="text-lg font-black text-brand-700">{preview.calories.toLocaleString()} kcal</p>
                   </div>
-                  <div className="flex flex-wrap gap-2 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                    <span className="rounded-full bg-white px-3 py-1 dark:bg-slate-800/60">{preview.category}</span>
-                    <span className="rounded-full bg-white px-3 py-1 dark:bg-slate-800/60">{preview.mealType}</span>
-                    <span className="rounded-full bg-white px-3 py-1 dark:bg-slate-800/60">{preview.servings} serving{preview.servings > 1 ? "s" : ""}</span>
+                  <div className="flex flex-wrap gap-2 text-xs font-semibold text-slate-700">
+                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1">{preview.category}</span>
+                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1">{preview.mealType}</span>
+                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1">{preview.servings} serving{preview.servings > 1 ? "s" : ""}</span>
                   </div>
                 </div>
 
                 <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                  <div className="rounded-xl bg-white/75 px-3 py-2 text-sm dark:bg-slate-800/60">Protein: <span className="font-bold">{preview.proteinGrams}g</span></div>
-                  <div className="rounded-xl bg-white/75 px-3 py-2 text-sm dark:bg-slate-800/60">Carbs: <span className="font-bold">{preview.carbsGrams}g</span></div>
-                  <div className="rounded-xl bg-white/75 px-3 py-2 text-sm dark:bg-slate-800/60">Fat: <span className="font-bold">{preview.fatGrams}g</span></div>
-                  <div className="rounded-xl bg-white/75 px-3 py-2 text-sm dark:bg-slate-800/60">Fiber: <span className="font-bold">{preview.fiberGrams}g</span></div>
+                  <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">Protein: <span className="font-bold">{preview.proteinGrams}g</span></div>
+                  <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">Carbs: <span className="font-bold">{preview.carbsGrams}g</span></div>
+                  <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">Fat: <span className="font-bold">{preview.fatGrams}g</span></div>
+                  <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">Fiber: <span className="font-bold">{preview.fiberGrams}g</span></div>
                 </div>
               </div>
             )}
@@ -358,7 +359,7 @@ export default function NutritionPage() {
                     <p className="mb-2 text-xs font-black uppercase tracking-[0.18em]">Insights</p>
                     <ul className="space-y-2 text-sm">
                       {analysis.insights.map((item) => (
-                        <li key={item} className="rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-800/60">
+                        <li key={item} className="rounded-xl bg-white px-3 py-2">
                           {item}
                         </li>
                       ))}
@@ -368,58 +369,61 @@ export default function NutritionPage() {
                     <p className="mb-2 text-xs font-black uppercase tracking-[0.18em]">Recommendations</p>
                     <ul className="space-y-2 text-sm">
                       {analysis.recommendations.map((item) => (
-                        <li key={item} className="rounded-xl bg-white/70 px-3 py-2 dark:bg-slate-800/60">
+                        <li key={item} className="rounded-xl bg-white px-3 py-2">
                           {item}
                         </li>
                       ))}
                     </ul>
                   </div>
                 </div>
+                <div className="mt-4">
+                  <Link href="/dashboard" className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-700">
+                    Return to Dashboard
+                  </Link>
+                </div>
               </div>
             )}
           </Card>
 
           <Card>
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-black text-slate-800 dark:text-slate-100">
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-black text-slate-800">
               <Clock3 className="h-5 w-5 text-brand-700" /> Recent Nutrition Logs
             </h3>
 
             <div className="space-y-3">
-              <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 dark:border-slate-700 dark:bg-slate-900/30">
-                <p className="text-sm text-slate-600 dark:text-slate-300">Progress toward a 2,000 kcal target</p>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-100 dark:bg-slate-800/70">
-                  <div className="h-full rounded-full bg-brand-600" style={{ width: `${nutritionProgress}%` }} />
-                </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="text-sm text-slate-600">Progress toward a 2,000 kcal target</p>
+                <ProgressBar value={nutritionProgress} className="mt-2" />
                 <p className="mt-2 text-xs text-slate-500">{Math.round(nutritionProgress)}% of goal reached today.</p>
               </div>
 
               {nutritionEntries.length > 0 ? (
                 nutritionEntries.slice(0, 6).map((entry) => (
-                  <div key={entry.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                  <div key={entry.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-lg font-black text-slate-900 dark:text-slate-100">{entry.foodLabel}</p>
+                        <p className="text-lg font-black text-slate-900">{entry.foodLabel}</p>
                         <p className="text-sm text-slate-500">{entry.mealType} · {entry.category} · {entry.servings} serving{entry.servings > 1 ? "s" : ""}</p>
                       </div>
                       <p className="text-right text-xs text-slate-500">{formatLoggedAt(entry.date)}</p>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
-                      <span className="rounded-full bg-white px-3 py-1 dark:bg-slate-700">{entry.calories} kcal</span>
-                      <span className="rounded-full bg-white px-3 py-1 dark:bg-slate-700">P {entry.proteinGrams}g</span>
-                      <span className="rounded-full bg-white px-3 py-1 dark:bg-slate-700">C {entry.carbsGrams}g</span>
-                      <span className="rounded-full bg-white px-3 py-1 dark:bg-slate-700">F {entry.fatGrams}g</span>
+                      <span className="rounded-full border border-slate-200 bg-white px-3 py-1">{entry.calories} kcal</span>
+                      <span className="rounded-full border border-slate-200 bg-white px-3 py-1">P {entry.proteinGrams}g</span>
+                      <span className="rounded-full border border-slate-200 bg-white px-3 py-1">C {entry.carbsGrams}g</span>
+                      <span className="rounded-full border border-slate-200 bg-white px-3 py-1">F {entry.fatGrams}g</span>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800">
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
                   No nutrition logs yet. Add a meal to see automatic calorie and macro estimates.
                 </div>
               )}
             </div>
 
-            <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800">
-              <p className="mb-1 font-semibold text-slate-700 dark:text-slate-200">How it works</p>
+            <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
+              <p className="mb-1 font-semibold text-slate-700">How it works</p>
               <p>Food names are matched locally to common foods, then combined into a macro estimate with personalized guidance.</p>
             </div>
           </Card>

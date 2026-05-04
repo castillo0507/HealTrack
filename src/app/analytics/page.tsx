@@ -9,7 +9,7 @@ import { AuthGuard } from "@/components/auth-guard";
 import { Card, ProgressBar, Stat } from "@/components/ui";
 import { MonthlyComparisonChart, WeeklyProgressChart } from "@/components/charts";
 import { useHealth } from "@/lib/health-store";
-import { buildCategoryProgress } from "@/lib/progress";
+import { buildCategoryProgress, buildMonthlyOverallProgress, buildWeeklyOverallProgress } from "@/lib/progress";
 import { buildInsightsReport, type CategoryInsight } from "@/lib/insights";
 
 const categoryMeta: Record<string, { icon: ComponentType<{ className?: string }>; accent: string; route: string }> = {
@@ -67,6 +67,42 @@ export default function AnalyticsPage() {
     });
   }, [categories, goals, today, weeklyData, workouts, nutritionEntries, heartRateEntries, vitalSignsEntries]);
 
+  const weeklyOverall = useMemo(() => {
+    return buildWeeklyOverallProgress({
+      goals,
+      today,
+      weeklyData,
+      monthlyData,
+      workouts,
+      nutritionEntries,
+      heartRateEntries,
+      vitalSignsEntries,
+    });
+  }, [goals, today, weeklyData, monthlyData, workouts, nutritionEntries, heartRateEntries, vitalSignsEntries]);
+
+  const monthlyOverall = useMemo(() => {
+    return buildMonthlyOverallProgress({
+      goals,
+      today,
+      weeklyData,
+      monthlyData,
+      workouts,
+      nutritionEntries,
+      heartRateEntries,
+      vitalSignsEntries,
+    });
+  }, [goals, today, weeklyData, monthlyData, workouts, nutritionEntries, heartRateEntries, vitalSignsEntries]);
+
+  const categoryProgressEntries = Object.entries(categoryProgress);
+  const weeklyCategoryProgress = Object.entries(weeklyOverall.categoryProgress).map(([category, progress]) => ({
+    category,
+    progress,
+  }));
+  const monthlyCategoryProgress = Object.entries(monthlyOverall.categoryProgress).map(([category, progress]) => ({
+    category,
+    progress,
+  }));
+
   return (
     <AuthGuard>
       <AppShell>
@@ -91,9 +127,32 @@ export default function AnalyticsPage() {
             <div className="mt-4 rounded-2xl border border-brand-200 bg-white p-4 text-slate-900 shadow-sm">
               <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-slate-700">Overall Summary</p>
               <p className="text-sm font-semibold">{report.overview}</p>
-              <p className="mt-2 text-sm text-slate-700">
-                {report.highlights[0]}
-              </p>
+
+              <div className="mt-3 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <div>
+                  <div className="mb-1 flex items-center justify-between gap-2 text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+                    <span>Weekly Overall Progress</span>
+                    <span>{weeklyOverall.overallProgress}%</span>
+                  </div>
+                  <ProgressBar value={weeklyOverall.overallProgress} />
+                  <p className="mt-1 text-xs text-slate-600">
+                    {weeklyOverall.trackedCategories} of {weeklyOverall.totalCategories} categories have weekly data contributing to this score.
+                  </p>
+                </div>
+
+                <div>
+                  <div className="mb-1 flex items-center justify-between gap-2 text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+                    <span>Monthly Overall Progress</span>
+                    <span>{monthlyOverall.overallProgress}%</span>
+                  </div>
+                  <ProgressBar value={monthlyOverall.overallProgress} />
+                  <p className="mt-1 text-xs text-slate-600">
+                    {monthlyOverall.trackedCategories} of {monthlyOverall.totalCategories} categories have monthly data contributing to this score.
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-3 text-sm text-slate-700">{report.highlights[0]}</p>
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -102,6 +161,39 @@ export default function AnalyticsPage() {
                   {item}
                 </div>
               ))}
+            </div>
+          </Card>
+
+          <Card>
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h2 className="mb-1 text-2xl font-black text-slate-800">Category Progress Overview</h2>
+                <p className="text-sm text-slate-500">All 8 categories are shown here, including those with no current activity.</p>
+              </div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{categoryProgressEntries.length} categories</p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {categoryProgressEntries.map(([category, value]) => {
+                const meta = categoryMeta[category];
+                const Icon = meta.icon;
+
+                return (
+                  <div key={category} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div className="mb-3 flex items-start gap-3">
+                      <div className={`rounded-xl p-2 ${meta.accent}`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-black text-slate-800">{category}</p>
+                        <p className="text-xs text-slate-500">{Math.round(value)}% complete</p>
+                      </div>
+                    </div>
+
+                    <ProgressBar value={value} />
+                  </div>
+                );
+              })}
             </div>
           </Card>
 
@@ -175,14 +267,14 @@ export default function AnalyticsPage() {
 
           <Card>
             <h2 className="mb-1 text-2xl font-black text-slate-800">Weekly Analytics</h2>
-            <p className="mb-5 text-sm text-slate-500">Compare daily health trends over the current week.</p>
-            <WeeklyProgressChart data={weeklyData} />
+            <p className="text-sm text-slate-500">Category progress for the current week across all 8 categories.</p>
+            <WeeklyProgressChart data={weeklyCategoryProgress} />
           </Card>
 
           <Card>
             <h2 className="mb-1 text-2xl font-black text-slate-800">Monthly Progress</h2>
-            <p className="mb-5 text-sm text-slate-500">Simple comparison across the month.</p>
-            <MonthlyComparisonChart data={monthlyData} />
+            <p className="text-sm text-slate-500">Category progress for the month across all 8 categories.</p>
+            <MonthlyComparisonChart data={monthlyCategoryProgress} />
           </Card>
         </div>
       </AppShell>

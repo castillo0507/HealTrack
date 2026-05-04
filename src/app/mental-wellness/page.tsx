@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
 import { Brain, Plus, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { AuthGuard } from "@/components/auth-guard";
@@ -115,12 +116,12 @@ export default function MentalWellnessPage() {
     <AuthGuard>
       <AppShell>
         <Card>
-          <h2 className="mb-1 flex items-center gap-2 text-2xl font-black text-slate-800 dark:text-slate-100">
+          <h2 className="mb-1 flex items-center gap-2 text-2xl font-black text-slate-800">
             <Brain className="h-6 w-6 text-brand-700" /> Mental Wellness
           </h2>
           <p className="mb-5 text-sm text-slate-500">Check in on mood, stress, energy, and focus to evaluate how you are doing today.</p>
 
-          <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+          <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <p className="mb-2 text-xs font-black uppercase tracking-[0.2em] text-slate-500">Live balance score</p>
             <ProgressBar value={categoryProgress["Mental Wellness"]} className="mb-2" />
             <p className="text-sm text-slate-500">{Math.round(categoryProgress["Mental Wellness"])}% based on your latest sleep, hydration, activity, and recovery signals.</p>
@@ -139,14 +140,14 @@ export default function MentalWellnessPage() {
 
           {showForm && (
             <form className="space-y-3" onSubmit={submitEvaluation}>
-              <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300" htmlFor="mood">
+              <label className="block text-sm font-semibold text-slate-600" htmlFor="mood">
                 Mood
               </label>
               <select
                 id="mood"
                 value={mood}
                 onChange={(event) => setMood(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               >
                 {moodOptions.map((option) => (
                   <option key={option.label} value={option.value}>
@@ -155,14 +156,14 @@ export default function MentalWellnessPage() {
                 ))}
               </select>
 
-              <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300" htmlFor="stress">
+              <label className="block text-sm font-semibold text-slate-600" htmlFor="stress">
                 Stress level
               </label>
               <select
                 id="stress"
                 value={stress}
                 onChange={(event) => setStress(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               >
                 {stressOptions.map((option) => (
                   <option key={option.label} value={option.value}>
@@ -171,14 +172,14 @@ export default function MentalWellnessPage() {
                 ))}
               </select>
 
-              <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300" htmlFor="energy">
+              <label className="block text-sm font-semibold text-slate-600" htmlFor="energy">
                 Energy level
               </label>
               <select
                 id="energy"
                 value={energy}
                 onChange={(event) => setEnergy(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               >
                 {energyOptions.map((option) => (
                   <option key={option.label} value={option.value}>
@@ -187,14 +188,14 @@ export default function MentalWellnessPage() {
                 ))}
               </select>
 
-              <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300" htmlFor="focus">
+              <label className="block text-sm font-semibold text-slate-600" htmlFor="focus">
                 Focus
               </label>
               <select
                 id="focus"
                 value={focus}
                 onChange={(event) => setFocus(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               >
                 {focusOptions.map((option) => (
                   <option key={option.label} value={option.value}>
@@ -213,14 +214,14 @@ export default function MentalWellnessPage() {
           )}
 
           {assessment && (
-            <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500 rounded-2xl border border-brand-200 bg-brand-50 p-4 dark:border-slate-700 dark:bg-slate-900/30">
+            <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="mb-2 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-brand-700" />
-                <p className="font-semibold text-slate-800 dark:text-slate-100">{assessment.verdict} mental wellness score</p>
+                <p className="font-semibold text-slate-800">{assessment.verdict} mental wellness score</p>
               </div>
-              <p className="mb-2 text-4xl font-black text-brand-700 dark:text-brand-300">{assessment.score}/100</p>
-              <p className="mb-2 font-semibold text-slate-800 dark:text-slate-100">{assessment.comment}</p>
-              <p className="text-sm text-slate-600 dark:text-slate-300">{assessment.suggestion}</p>
+              <p className="mb-2 text-4xl font-black text-brand-700">{assessment.score}/100</p>
+              <p className="mb-2 font-semibold text-slate-800">{assessment.comment}</p>
+              <p className="text-sm text-slate-600">{assessment.suggestion}</p>
 
               <button
                 type="button"
@@ -232,6 +233,11 @@ export default function MentalWellnessPage() {
               >
                 Evaluate again
               </button>
+              <div className="mt-4">
+                <Link href="/dashboard" className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-700">
+                  Return to Dashboard
+                </Link>
+              </div>
             </div>
           )}
         </Card>
