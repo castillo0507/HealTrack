@@ -128,7 +128,12 @@ function drawHeader(doc: jsPDF, cursor: PdfCursor, title: string, subtitle: stri
   cursor.y += 30;
 }
 
-function drawSectionTitle(doc: jsPDF, cursor: PdfCursor, title: string, accent = [95, 116, 139] as const) {
+function drawSectionTitle(
+  doc: jsPDF,
+  cursor: PdfCursor,
+  title: string,
+  accent: readonly [number, number, number] = [95, 116, 139] as const,
+) {
   ensureSpace(doc, cursor, 14);
   doc.setFillColor(accent[0], accent[1], accent[2]);
   doc.roundedRect(MARGIN, cursor.y, 3, 8, 1, 1, "F");
