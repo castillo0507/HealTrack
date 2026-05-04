@@ -7,7 +7,7 @@ export function HealthLogo({ subtitle }: { subtitle?: string }) {
         <HeartPulse className="h-8 w-8" />
       </div>
       <h1 className="text-4xl font-black tracking-tight text-brand-700">HealTrack</h1>
-      {subtitle ? <p className="text-lg text-slate-500">{subtitle}</p> : null}
+      {subtitle ? <p className="text-lg text-slate-700">{subtitle}</p> : null}
     </div>
   );
 }

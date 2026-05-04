@@ -34,3 +34,21 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Connect To Supabase
+
+1. Create a Supabase project in the dashboard.
+2. Copy your project URL and anon key from Project Settings -> API.
+3. Create a `.env.local` file in the project root with these values:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+# Optional fallback for older projects:
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+```
+
+4. Restart the dev server (`npm run dev`).
+5. Open the Profile page and use the **Test Supabase Connection** button.
+
+If connection succeeds, the app is correctly wired to your Supabase project and ready for auth/database integration.

@@ -2,14 +2,19 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { AuthGuard } from "@/components/auth-guard";
 import { Card } from "@/components/ui";
 import { allCategories, useHealth } from "@/lib/health-store";
+import { buildInsightsReport } from "@/lib/insights";
+import { buildCategoryProgress } from "@/lib/progress";
+import { exportAllDataPdf } from "@/lib/export-report";
 
 export default function ProfilePage() {
-  const { profile, goals, categories, updateProfile, updateGoals, toggleCategory } = useHealth();
+  const router = useRouter();
+  const { profile, goals, categories, today, weeklyData, monthlyData, workouts, nutritionEntries, heartRateEntries, vitalSignsEntries, streak, updateProfile, updateGoals, toggleCategory, logout } = useHealth();
 
   const [name, setName] = useState(profile.name);
   const [email, setEmail] = useState(profile.email);
@@ -17,6 +22,10 @@ export default function ProfilePage() {
   const [waterGoal, setWaterGoal] = useState(String(goals.waterCups));
   const [sleepGoal, setSleepGoal] = useState(String(goals.sleepHours));
   const [savedMessage, setSavedMessage] = useState("");
+  const [connectionMessage, setConnectionMessage] = useState("");
+  const [exportMessage, setExportMessage] = useState("");
+  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   function onSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,6 +38,96 @@ export default function ProfilePage() {
     });
 
     setSavedMessage("Profile and health targets saved.");
+  }
+
+  async function onTestSupabaseConnection() {
+    setIsCheckingConnection(true);
+    setConnectionMessage("");
+
+    try {
+      const response = await fetch("/api/supabase/health", {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      const payload = (await response.json()) as {
+        ok?: boolean;
+        message?: string;
+        projectRef?: string;
+      };
+
+      if (!response.ok || !payload.ok) {
+        setConnectionMessage(payload.message ?? "Unable to connect to Supabase.");
+        return;
+      }
+
+      setConnectionMessage(`Connected to Supabase project: ${payload.projectRef ?? "unknown"}.`);
+    } catch {
+      setConnectionMessage("Connection test failed. Please check your network and Supabase env settings.");
+    } finally {
+      setIsCheckingConnection(false);
+    }
+  }
+
+  function onSignOut() {
+    logout();
+    router.push("/login");
+  }
+
+  async function onExportAllData() {
+    setIsExporting(true);
+    setExportMessage("");
+
+    try {
+      const insights = buildInsightsReport({
+        categories,
+        goals,
+        today,
+        weeklyData,
+        workouts,
+        nutritionEntries,
+        heartRateEntries,
+        vitalSignsEntries,
+      });
+
+      const progress = buildCategoryProgress({
+        goals,
+        today,
+        workouts,
+        nutritionEntries,
+        heartRateEntries,
+        vitalSignsEntries,
+      });
+
+      exportAllDataPdf({
+        profile: {
+          name: name.trim() || profile.name,
+          email: email.trim() || profile.email,
+        },
+        goals: {
+          steps: Number(stepsGoal),
+          waterCups: Number(waterGoal),
+          sleepHours: Number(sleepGoal),
+        },
+        categories,
+        today,
+        streak,
+        progress,
+        insights,
+        weeklyData,
+        monthlyData,
+        workouts,
+        nutritionEntries,
+        heartRateEntries,
+        vitalSignsEntries,
+      });
+
+      setExportMessage("Your PDF report has been downloaded.");
+    } catch {
+      setExportMessage("Export failed. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
   }
 
   return (
@@ -49,7 +148,7 @@ export default function ProfilePage() {
                   type="text"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
                 />
               </div>
 
@@ -62,7 +161,7 @@ export default function ProfilePage() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
                 />
               </div>
 
@@ -76,7 +175,7 @@ export default function ProfilePage() {
                   min={1000}
                   value={stepsGoal}
                   onChange={(event) => setStepsGoal(event.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
                 />
               </div>
 
@@ -90,7 +189,7 @@ export default function ProfilePage() {
                   min={1}
                   value={waterGoal}
                   onChange={(event) => setWaterGoal(event.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
                 />
               </div>
 
@@ -106,7 +205,7 @@ export default function ProfilePage() {
                   step="0.5"
                   value={sleepGoal}
                   onChange={(event) => setSleepGoal(event.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
                 />
               </div>
 
@@ -134,10 +233,8 @@ export default function ProfilePage() {
                     key={category}
                     type="button"
                     onClick={() => toggleCategory(category)}
-                    className={`rounded-2xl border px-4 py-3 text-left font-semibold transition ${
-                      selected
-                        ? "border-brand-400 bg-brand-50 text-brand-700 dark:bg-brand-700/20 dark:text-brand-300"
-                        : "border-slate-200 bg-white text-slate-600 hover:border-brand-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+                    className={`rounded-2xl border px-4 py-3 text-left font-semibold text-black transition hover:border-brand-300 hover:bg-slate-50 hover:text-black ${
+                      selected ? "border-brand-400 bg-brand-50 text-black shadow-sm" : "border-slate-200 bg-white"
                     }`}
                   >
                     {category}
@@ -152,6 +249,45 @@ export default function ProfilePage() {
               <ShieldCheck className="h-4 w-4" /> Privacy Status
             </p>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">All data stays local on your device. You control what to track and can update consent anytime.</p>
+          </Card>
+
+          <Card>
+            <h3 className="mb-2 text-lg font-black text-slate-800 dark:text-slate-100">Supabase Connection</h3>
+            <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
+              Use your project URL and anon key in <span className="font-semibold">.env.local</span>, then test connectivity here.
+            </p>
+            <button
+              type="button"
+              onClick={onTestSupabaseConnection}
+              disabled={isCheckingConnection}
+              className="w-full rounded-xl bg-slate-900 py-3 font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+            >
+              {isCheckingConnection ? "Testing connection..." : "Test Supabase Connection"}
+            </button>
+            {connectionMessage ? <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{connectionMessage}</p> : null}
+          </Card>
+
+          <Card>
+            <h3 className="mb-2 text-lg font-black text-slate-800 dark:text-slate-100">Account</h3>
+            <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">Sign out of the current account to return to the login screen.</p>
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={onExportAllData}
+                disabled={isExporting}
+                className="w-full rounded-xl border border-brand-200 bg-brand-50 py-3 font-bold text-brand-700 transition hover:border-brand-300 hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-brand-700/40 dark:bg-brand-500/10 dark:text-brand-200"
+              >
+                {isExporting ? "Exporting PDF..." : "Export All Data"}
+              </button>
+              <button
+                type="button"
+                onClick={onSignOut}
+                className="w-full rounded-xl border border-rose-200 bg-rose-50 py-3 font-bold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300"
+              >
+                Sign Out
+              </button>
+            </div>
+            {exportMessage ? <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{exportMessage}</p> : null}
           </Card>
 
           <Card>

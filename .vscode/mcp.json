@@ -1,0 +1,16 @@
+{
+	"servers": {
+		"supabase": {
+			"type": "http",
+			"url": "https://mcp.supabase.com/mcp?project_ref=ihnqradonoudcfguqcfg"
+		}
+	},
+	"inputs": [
+		{
+			"type": "promptString",
+			"id": "supabase-access-token",
+			"description": "Supabase personal access token for MCP",
+			"password": true
+		}
+	]
+}

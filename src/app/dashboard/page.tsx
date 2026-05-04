@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useMemo } from "react";
 import type { ComponentType } from "react";
 import {
   Brain,
@@ -16,7 +17,9 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { AuthGuard } from "@/components/auth-guard";
+import { ProfileModal } from "@/components/profile-modal";
 import { useHealth } from "@/lib/health-store";
+import { buildCategoryProgress } from "@/lib/progress";
 
 type OverviewCard = {
   title: string;
@@ -34,111 +37,169 @@ function Meter({ value }: { value: number }) {
 }
 
 export default function DashboardPage() {
-  const { today, goals, categories, profile } = useHealth();
+  const { today, goals, categories, profile, workouts, nutritionEntries, heartRateEntries, vitalSignsEntries, streak, updateProfile, updateGoals } = useHealth();
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
-  const stepsProgress = (today.steps / goals.steps) * 100;
-  const sleepProgress = (today.sleepHours / goals.sleepHours) * 100;
-  const waterProgress = (today.waterCups / goals.waterCups) * 100;
-  const todayProgress = Math.round((stepsProgress + sleepProgress + waterProgress + 78) / 4);
+  const latestHeartRate = heartRateEntries[0];
+  const latestVitalSigns = vitalSignsEntries[0];
+  const latestNutrition = nutritionEntries[0];
+  const nutritionGoalCalories = 2000;
+
+  const categoryProgress = useMemo(() => buildCategoryProgress({
+    goals,
+    today,
+    workouts,
+    nutritionEntries,
+    heartRateEntries,
+    vitalSignsEntries,
+  }), [goals, today, workouts, nutritionEntries, heartRateEntries, vitalSignsEntries]);
+
+  const titleToCategory: Record<string, string> = {
+    Steps: "Physical Activity",
+    Sleep: "Sleep Tracking",
+    "Mental Wellness": "Mental Wellness",
+    "Heart Rate": "Heart Health",
+    "Water Intake": "Hydration",
+    Nutrition: "Nutrition",
+    Workout: "Exercise & Workouts",
+    "Vital Signs": "Vital Signs",
+  };
+
+  const routeMap: Record<string, string> = {
+    Steps: "/steps",
+    Sleep: "/sleep",
+    "Mental Wellness": "/mental-wellness",
+    "Heart Rate": "/heart-rate",
+    "Water Intake": "/water",
+    Workout: "/workout",
+    "Vital Signs": "/vital-signs",
+    Nutrition: "/nutrition",
+  };
 
   const cards: OverviewCard[] = [
     {
       title: "Steps",
       subtitle: `/ ${goals.steps.toLocaleString()} goal`,
-      value: today.steps.toLocaleString(),
-      progress: stepsProgress,
+      value: categories.includes(titleToCategory.Steps) ? today.steps.toLocaleString() : "—",
+      progress: categories.includes(titleToCategory.Steps) ? categoryProgress["Physical Activity"] : 0,
       icon: Footprints,
-      tone: "bg-emerald-100 text-emerald-600",
+      tone: "bg-brand-50 text-brand-700",
     },
     {
       title: "Sleep",
-      subtitle: today.sleepQuality,
-      value: `${today.sleepHours} hrs`,
-      progress: sleepProgress,
+      subtitle: categories.includes(titleToCategory.Sleep) ? today.sleepQuality : "Not tracking",
+      value: categories.includes(titleToCategory.Sleep) ? `${today.sleepHours} hrs` : "—",
+      progress: categories.includes(titleToCategory.Sleep) ? categoryProgress["Sleep Tracking"] : 0,
       icon: MoonStar,
-      tone: "bg-violet-100 text-violet-600",
+      tone: "bg-slate-100 text-slate-600",
     },
     {
       title: "Mental Wellness",
-      subtitle: "15 min meditation",
-      value: "Good",
-      progress: 80,
+      subtitle: "Wellness check-in",
+      value: categories.includes(titleToCategory["Mental Wellness"]) ? "Ready" : "—",
+      progress: categories.includes(titleToCategory["Mental Wellness"]) ? categoryProgress["Mental Wellness"] : 0,
       icon: Brain,
-      tone: "bg-indigo-100 text-indigo-600",
+      tone: "bg-brand-100 text-brand-700",
     },
     {
       title: "Heart Rate",
-      subtitle: "Resting: 65 BPM",
-      value: "72 BPM",
-      progress: 85,
+      subtitle: latestHeartRate
+        ? `Resting: ${latestHeartRate.restingBpm ?? latestHeartRate.bpm} BPM`
+        : categories.includes(titleToCategory["Heart Rate"])
+          ? "Ready to log"
+          : "No category selected",
+      value: categories.includes(titleToCategory["Heart Rate"])
+        ? latestHeartRate
+          ? `${latestHeartRate.bpm} BPM`
+          : "No data"
+        : "—",
+      progress: categories.includes(titleToCategory["Heart Rate"]) ? categoryProgress["Heart Health"] : 0,
       icon: Heart,
-      tone: "bg-rose-100 text-rose-600",
+      tone: "bg-slate-100 text-slate-600",
     },
     {
       title: "Water Intake",
       subtitle: `/ ${goals.waterCups} cups goal`,
-      value: `${today.waterCups} cups`,
-      progress: waterProgress,
+      value: categories.includes(titleToCategory["Water Intake"]) ? `${today.waterCups} cups` : "—",
+      progress: categories.includes(titleToCategory["Water Intake"]) ? categoryProgress.Hydration : 0,
       icon: Droplets,
-      tone: "bg-sky-100 text-sky-600",
+      tone: "bg-brand-50 text-brand-700",
     },
     {
       title: "Nutrition",
-      subtitle: "/ 2,000 cal goal",
-      value: `${today.caloriesBurned.toLocaleString()} cal`,
-      progress: 82,
+      subtitle: latestNutrition
+        ? `${latestNutrition.mealType} · ${latestNutrition.category}`
+        : categories.includes(titleToCategory.Nutrition)
+          ? `${nutritionGoalCalories.toLocaleString()} kcal target`
+          : "No category selected",
+      value: categories.includes(titleToCategory.Nutrition)
+        ? `${today.nutritionCalories.toLocaleString()} kcal`
+        : "—",
+      progress: categories.includes(titleToCategory.Nutrition) ? categoryProgress.Nutrition : 0,
       icon: Flame,
-      tone: "bg-orange-100 text-orange-600",
+      tone: "bg-slate-100 text-slate-600",
     },
     {
       title: "Workout",
       subtitle: "Strength training",
-      value: "45 min",
-      progress: 100,
+      value: categories.includes(titleToCategory.Workout) ? (workouts.length ? `${workouts[0].duration} min` : "No data") : "—",
+      progress: categories.includes(titleToCategory.Workout) ? categoryProgress["Exercise & Workouts"] : 0,
       icon: Dumbbell,
-      tone: "bg-cyan-100 text-cyan-600",
+      tone: "bg-brand-100 text-brand-700",
     },
     {
       title: "Vital Signs",
-      subtitle: "BP: 120/80",
-      value: "98.6°F",
-      progress: 90,
+      subtitle: latestVitalSigns
+        ? `SpO2 ${latestVitalSigns.spo2}% · Temp ${latestVitalSigns.temperature.toFixed(1)}°${latestVitalSigns.temperatureUnit}`
+        : categories.includes(titleToCategory["Vital Signs"])
+          ? "Ready to log"
+          : "No category selected",
+      value: categories.includes(titleToCategory["Vital Signs"])
+        ? latestVitalSigns
+          ? `${latestVitalSigns.systolic}/${latestVitalSigns.diastolic}`
+          : "No data"
+        : "—",
+      progress: categories.includes(titleToCategory["Vital Signs"]) ? categoryProgress["Vital Signs"] : 0,
       icon: Thermometer,
-      tone: "bg-pink-100 text-pink-600",
+      tone: "bg-slate-100 text-slate-600",
     },
   ];
+
+  const tracked = cards.filter((c) => c.progress > 0);
+  const todayProgress = tracked.length ? Math.round(tracked.reduce((s, c) => s + c.progress, 0) / tracked.length) : 0;
 
   return (
     <AuthGuard>
       <AppShell>
-        <div className="min-h-screen bg-slate-100 pb-24">
-          <header className="rounded-b-2xl bg-linear-to-r from-[#2460ea] to-[#1f54de] px-4 pb-4 pt-3 text-white shadow-lg shadow-blue-500/20 sm:px-6">
+        <div className="min-h-screen bg-slate-50 pb-24">
+          <header className="rounded-b-2xl bg-linear-to-r from-brand-50 to-white px-4 pb-4 pt-3 text-slate-800 shadow-sm shadow-slate-200/70 sm:px-6">
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <p className="text-sm font-semibold">Hello, {profile.name.split(" ")[0]}!</p>
-                <p className="text-xs text-blue-100">Monday, April 27, 2026</p>
+                <p className="text-xs text-slate-500">Monday, April 27, 2026</p>
               </div>
-              <Link
-                href="/profile"
-                className="rounded-full bg-white/20 p-2 text-white transition hover:bg-white/30"
+              <button
+                type="button"
+                onClick={() => setProfileModalOpen(true)}
+                className="rounded-full bg-white/70 p-2 text-slate-700 transition hover:bg-white"
                 aria-label="Open profile"
               >
                 <Menu className="h-4 w-4" />
-              </Link>
+              </button>
             </div>
 
             <div className="grid gap-2 sm:grid-cols-3">
-              <div className="rounded-lg bg-white/8 px-3 py-2 text-center">
-                <p className="text-[10px] uppercase tracking-wide text-blue-100">Active Categories</p>
+              <div className="rounded-lg border border-white/70 bg-white/60 px-3 py-2 text-center shadow-sm">
+                <p className="text-[10px] uppercase tracking-wide text-slate-500">Active Categories</p>
                 <p className="text-sm font-bold">{categories.length}</p>
               </div>
-              <div className="rounded-lg bg-white/8 px-3 py-2 text-center">
-                <p className="text-[10px] uppercase tracking-wide text-blue-100">Today&apos;s Progress</p>
+              <div className="rounded-lg border border-white/70 bg-white/60 px-3 py-2 text-center shadow-sm">
+                <p className="text-[10px] uppercase tracking-wide text-slate-500">Today&apos;s Progress</p>
                 <p className="text-sm font-bold">{todayProgress}%</p>
               </div>
-              <div className="rounded-lg bg-white/8 px-3 py-2 text-center">
-                <p className="text-[10px] uppercase tracking-wide text-blue-100">Streak</p>
-                <p className="text-sm font-bold">12 days</p>
+              <div className="rounded-lg border border-white/70 bg-white/60 px-3 py-2 text-center shadow-sm">
+                <p className="text-[10px] uppercase tracking-wide text-slate-500">Streak</p>
+                <p className="text-sm font-bold">{streak} {streak === 1 ? "day" : "days"}</p>
               </div>
             </div>
           </header>
@@ -146,7 +207,7 @@ export default function DashboardPage() {
           <main className="px-3 pt-4 sm:px-4">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-700">Today&apos;s Overview</h2>
-              <Link href="/analytics" className="flex items-center gap-1 text-xs font-semibold text-blue-500 hover:underline">
+              <Link href="/analytics" className="flex items-center gap-1 text-xs font-semibold text-brand-700 hover:underline">
                 <TrendingUp className="h-3.5 w-3.5" /> View Insights
               </Link>
             </div>
@@ -166,11 +227,20 @@ export default function DashboardPage() {
                           <p className="text-[11px] text-slate-500">{card.subtitle}</p>
                         </div>
                       </div>
-                      <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                      <TrendingUp className="h-3.5 w-3.5 text-slate-400" />
                     </div>
 
-                    <p className="mt-3 text-lg font-semibold text-slate-900">{card.value}</p>
+                    <p className="mt-3 text-lg font-semibold text-slate-800">{card.value}</p>
                     <Meter value={card.progress} />
+
+                    <div className="mt-3 flex items-center justify-end">
+                      <Link
+                        href={routeMap[card.title] ?? "/categories"}
+                        className="rounded-md bg-brand-600 px-3 py-1 text-xs font-semibold text-white hover:bg-brand-700"
+                      >
+                        Log
+                      </Link>
+                    </div>
                   </article>
                 );
               })}
@@ -178,29 +248,34 @@ export default function DashboardPage() {
 
             <section className="mt-4">
               <h3 className="mb-2 text-sm font-semibold text-slate-700">Quick Actions</h3>
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Link
-                  href="/workout"
-                  className="rounded-xl border border-slate-200 bg-white p-4 text-center text-sm font-semibold text-slate-800 transition hover:border-blue-300"
-                >
-                  <span className="mb-1 block text-blue-500">+</span>
-                  Log Activity
-                </Link>
+              <div className="grid gap-2 sm:grid-cols-1">
                 <Link
                   href="/analytics"
-                  className="rounded-xl border border-slate-200 bg-white p-4 text-center text-sm font-semibold text-slate-800 transition hover:border-blue-300"
+                  className="rounded-xl border border-slate-200 bg-white p-4 text-center text-sm font-semibold text-slate-800 transition hover:border-brand-300"
                 >
-                  <span className="mb-1 block text-emerald-500">↗</span>
+                  <span className="mb-1 block text-slate-500">↗</span>
                   View Trends
                 </Link>
               </div>
             </section>
 
-            <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700">
+            <div className="mt-4 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-slate-700">
               <span className="font-semibold">Privacy First:</span> All your health data is stored locally on your device. No data is sent to external servers.
             </div>
           </main>
         </div>
+
+        <ProfileModal
+          open={profileModalOpen}
+          onClose={() => setProfileModalOpen(false)}
+          profile={profile}
+          goals={goals}
+          onSave={(newProfile, newGoals) => {
+            updateProfile(newProfile);
+            updateGoals(newGoals);
+            setProfileModalOpen(false);
+          }}
+        />
       </AppShell>
     </AuthGuard>
   );

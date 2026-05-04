@@ -1,32 +1,43 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Footprints } from "lucide-react";
+import { Footprints, Plus } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { AuthGuard } from "@/components/auth-guard";
 import { Card, ProgressBar } from "@/components/ui";
 import { useHealth } from "@/lib/health-store";
+import { generateStepsSuggestion, type SuggestionData } from "@/lib/suggestions";
 
 export default function StepsPage() {
   const { today, goals, addSteps } = useHealth();
   const [steps, setSteps] = useState("");
-  const [message, setMessage] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [suggestion, setSuggestion] = useState<SuggestionData | null>(null);
 
   function submitSteps(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = Number(steps);
 
     if (!Number.isFinite(value) || value <= 0) {
-      setMessage("Enter a valid number of steps.");
       return;
     }
 
+    const newTotal = today.steps + value;
     addSteps(value);
+    
+    // Generate suggestion
+    const newSuggestion = generateStepsSuggestion(value, newTotal, goals.steps);
+    setSuggestion(newSuggestion);
+    
     setSteps("");
-    setMessage("Steps added successfully.");
+    
+    // Reset form after a delay
+    setTimeout(() => {
+      setShowForm(false);
+    }, 2000);
   }
 
-  const progress = (today.steps / goals.steps) * 100;
+  const progress = ((today.steps) / goals.steps) * 100;
 
   return (
     <AuthGuard>
@@ -46,24 +57,43 @@ export default function StepsPage() {
           <ProgressBar value={progress} className="mb-2" />
           <p className="mb-6 text-sm text-slate-500">{Math.floor(progress)}% complete</p>
 
-          <form className="space-y-3" onSubmit={submitSteps}>
-            <input
-              type="number"
-              min={1}
-              value={steps}
-              onChange={(event) => setSteps(event.target.value)}
-              placeholder="Add steps"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800"
-            />
+          {!showForm && !suggestion && (
             <button
-              type="submit"
-              className="w-full rounded-xl bg-brand-600 py-3 font-bold text-white transition hover:bg-brand-700"
+              onClick={() => setShowForm(true)}
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-400"
+              title="Log steps"
+              aria-label="Log steps"
             >
-              Add Steps
+              <Plus className="h-6 w-6" />
             </button>
-          </form>
+          )}
 
-          {message ? <p className="mt-3 text-sm text-slate-600">{message}</p> : null}
+          {showForm && (
+            <form className="space-y-3" onSubmit={submitSteps}>
+              <input
+                type="number"
+                min={1}
+                value={steps}
+                onChange={(event) => setSteps(event.target.value)}
+                placeholder="Add steps"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:bg-white dark:text-slate-900"
+                autoFocus
+              />
+              <button
+                type="submit"
+                className="w-full rounded-xl bg-brand-600 py-3 font-bold text-white transition hover:bg-brand-700"
+              >
+                Log Steps
+              </button>
+            </form>
+          )}
+
+          {suggestion && (
+            <div className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500 rounded-2xl border border-brand-200 bg-brand-50 p-4 dark:border-brand-800 dark:bg-brand-700/10">
+              <p className="mb-2 font-semibold text-slate-800 dark:text-slate-100">{suggestion.comment}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{suggestion.suggestion}</p>
+            </div>
+          )}
         </Card>
       </AppShell>
     </AuthGuard>

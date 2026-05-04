@@ -15,8 +15,9 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [consent, setConsent] = useState(false);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (password !== confirmPassword) {
@@ -29,11 +30,20 @@ export default function RegisterPage() {
       return;
     }
 
-    const result = register({ name: name.trim(), email: email.trim(), password });
-    setMessage(result.message);
+    setLoading(true);
+    setMessage("");
 
-    if (result.ok) {
-      router.push("/onboarding");
+    try {
+      const result = await register({ name: name.trim(), email: email.trim(), password });
+      setMessage(result.message);
+
+      if (result.ok) {
+        router.push("/onboarding");
+      }
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -41,50 +51,50 @@ export default function RegisterPage() {
     <AuthPageShell mode="register">
       <form className="space-y-4" onSubmit={onSubmit}>
         <div>
-          <label className="mb-1 block text-sm font-bold text-slate-700 dark:text-slate-200">Full Name</label>
+          <label className="mb-1 block text-sm font-bold text-slate-700">Full Name</label>
           <input
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="John Doe"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-50"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-brand-500"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-bold text-slate-700 dark:text-slate-200">Email</label>
+          <label className="mb-1 block text-sm font-bold text-slate-700">Email</label>
           <input
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="your.email@example.com"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-50"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-brand-500"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-bold text-slate-700 dark:text-slate-200">Password</label>
+          <label className="mb-1 block text-sm font-bold text-slate-700">Password</label>
           <input
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="Create a strong password"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-50"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-brand-500"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-bold text-slate-700 dark:text-slate-200">Confirm Password</label>
+          <label className="mb-1 block text-sm font-bold text-slate-700">Confirm Password</label>
           <input
             type="password"
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             placeholder="Confirm your password"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-brand-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-50"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-brand-500"
           />
         </div>
 
-        <label className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
+        <label className="flex items-start gap-2 text-sm text-slate-600">
           <input
             type="checkbox"
             checked={consent}
@@ -96,12 +106,11 @@ export default function RegisterPage() {
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-brand-600 py-3 text-sm font-bold text-white shadow-md shadow-brand-600/30 transition hover:bg-brand-700"
+          disabled={loading}
+          className="w-full rounded-xl bg-brand-600 py-3 text-sm font-bold text-white shadow-md shadow-brand-600/30 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Create Account
+          {loading ? "Creating account..." : "Create Account"}
         </button>
-
-        {message ? <p className="text-center text-sm text-slate-600">{message}</p> : null}
       </form>
     </AuthPageShell>
   );

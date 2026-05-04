@@ -1,27 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #eef3fb;
-  --foreground: #0f172a;
-  --brand: #2563eb;
-  --brand-700: #1d4ed8;
-  --brand-100: #dbeafe;
+  --background: #f7f8fb;
+  --foreground: #000000;
+  --brand: #5f748b;
+  --brand-700: #46576b;
+  --brand-100: #e7edf4;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand-50: #f6f8fb;
   --color-brand-100: var(--brand-100);
+  --color-brand-200: #d4dfe9;
+  --color-brand-300: #bcc9d7;
+  --color-brand-400: #9aacbc;
   --color-brand-500: var(--brand);
-  --color-brand-600: var(--brand);
+  --color-brand-600: #526679;
   --color-brand-700: var(--brand-700);
   --font-sans: var(--font-nunito-sans);
   --font-mono: var(--font-nunito);
-}
-
-.dark {
-  --background: #0b1220;
-  --foreground: #e2e8f0;
 }
 
 body {
@@ -30,18 +29,20 @@ body {
   font-family: var(--font-nunito-sans), sans-serif;
 }
 
-.bg-app {
-  background-image:
-    radial-gradient(circle at 15% 10%, #d9e8ff 0%, transparent 28%),
-    radial-gradient(circle at 88% 92%, #d5f3ef 0%, transparent 24%),
-    linear-gradient(180deg, #edf3fb 0%, #f6f8fc 100%);
+body :where([class*="text-slate-"], [class*="text-gray-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-stone-"], [class*="text-brand-"]) {
+  color: #000000 !important;
 }
 
-.dark .bg-app {
-  background-image:
-    radial-gradient(circle at 15% 10%, #1e3a8a44 0%, transparent 28%),
-    radial-gradient(circle at 88% 92%, #0f766e33 0%, transparent 24%),
-    linear-gradient(180deg, #0b1220 0%, #121a2c 100%);
+.dark body :where([class*="dark:text-slate-"], [class*="dark:text-gray-"], [class*="dark:text-zinc-"], [class*="dark:text-neutral-"], [class*="dark:text-stone-"], [class*="dark:text-brand-"]) {
+  color: #000000 !important;
+}
+
+.dark body :where(.dark\:text-white, .dark\:text-slate-100, .dark\:text-slate-200, .dark\:text-slate-300) {
+  color: #000000 !important;
+}
+
+.bg-app {
+  background-color: var(--background);
 }
 
 .healtrack-progress::-webkit-progress-bar {
@@ -59,16 +60,29 @@ body {
   border-radius: 9999px;
 }
 
+.dashboard-meter {
+  appearance: none;
+  width: 100%;
+  height: 0.625rem;
+  border: none;
+  border-radius: 9999px;
+  background-color: #e2e8f0;
+  overflow: hidden;
+}
+
 .dashboard-meter::-webkit-progress-bar {
-  background-color: transparent;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
 }
 
 .dashboard-meter::-webkit-progress-value {
-  background-color: #0f172a;
+  background-color: var(--brand);
   border-radius: 9999px;
+  transition: width 200ms ease;
 }
 
 .dashboard-meter::-moz-progress-bar {
-  background-color: #0f172a;
+  background-color: var(--brand);
   border-radius: 9999px;
+  transition: width 200ms ease;
 }
