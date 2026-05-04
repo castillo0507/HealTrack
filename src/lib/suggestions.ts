@@ -124,7 +124,7 @@ export function generateWaterSuggestion(cups: number, totalCups: number, goal: n
     `Good choice! Adding ${cups} cup${cups > 1 ? "s" : ""} to stay hydrated.`,
   ];
 
-  const suggestions: Record<string, string[]> = [
+  const suggestions: string[] = [
     "Keep your water bottle nearby to stay hydrated throughout the day.",
     "Drink water before, during, and after exercise for optimal hydration.",
     "Try herbal tea or infused water to keep hydration interesting.",
