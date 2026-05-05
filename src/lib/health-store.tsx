@@ -636,7 +636,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
               if (sessionUserId) {
                 accountData = await fetchSnapshotFromSupabase(sessionUserId, normalizedEmail);
               } else {
-                accountData = makeEmptyAccountData({ name: "", email: normalizedEmail });
+                accountData = makeEmptyAccountData({ name: "", email: normalizedEmail, avatar: defaultProfileAvatar });
               }
 
               setState((prev) => {
@@ -708,6 +708,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         const accountData = makeEmptyAccountData({
           name: cleanName,
           email: normalizedEmail,
+          avatar: defaultProfileAvatar,
         });
 
         let sessionUserId = supabaseUserId;
