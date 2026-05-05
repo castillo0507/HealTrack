@@ -12,15 +12,15 @@ import { useHealth } from "@/lib/health-store";
 import { buildCategoryProgress, buildMonthlyOverallProgress, buildWeeklyOverallProgress } from "@/lib/progress";
 import { buildInsightsReport, type CategoryInsight } from "@/lib/insights";
 
-const categoryMeta: Record<string, { icon: ComponentType<{ className?: string }>; accent: string; route: string }> = {
-  "Physical Activity": { icon: Activity, accent: "text-emerald-600 bg-emerald-100", route: "/steps" },
-  "Heart Health": { icon: HeartPulse, accent: "text-rose-600 bg-rose-100", route: "/heart-rate" },
-  "Sleep Tracking": { icon: MoonStar, accent: "text-violet-600 bg-violet-100", route: "/sleep" },
-  Hydration: { icon: Droplets, accent: "text-sky-600 bg-sky-100", route: "/water" },
-  "Mental Wellness": { icon: Brain, accent: "text-indigo-600 bg-indigo-100", route: "/mental-wellness" },
-  Nutrition: { icon: Apple, accent: "text-orange-600 bg-orange-100", route: "/nutrition" },
-  "Exercise & Workouts": { icon: Dumbbell, accent: "text-cyan-600 bg-cyan-100", route: "/workout" },
-  "Vital Signs": { icon: Thermometer, accent: "text-pink-600 bg-pink-100", route: "/vital-signs" },
+const categoryMeta: Record<string, { icon: ComponentType<{ className?: string }>; accent: string; tone: "emerald" | "rose" | "violet" | "sky" | "indigo" | "orange" | "cyan" | "pink"; route: string }> = {
+  "Physical Activity": { icon: Activity, accent: "text-emerald-600 bg-emerald-100", tone: "emerald", route: "/steps" },
+  "Heart Health": { icon: HeartPulse, accent: "text-rose-600 bg-rose-100", tone: "rose", route: "/heart-rate" },
+  "Sleep Tracking": { icon: MoonStar, accent: "text-violet-600 bg-violet-100", tone: "violet", route: "/sleep" },
+  Hydration: { icon: Droplets, accent: "text-sky-600 bg-sky-100", tone: "sky", route: "/water" },
+  "Mental Wellness": { icon: Brain, accent: "text-indigo-600 bg-indigo-100", tone: "indigo", route: "/mental-wellness" },
+  Nutrition: { icon: Apple, accent: "text-orange-600 bg-orange-100", tone: "orange", route: "/nutrition" },
+  "Exercise & Workouts": { icon: Dumbbell, accent: "text-cyan-600 bg-cyan-100", tone: "cyan", route: "/workout" },
+  "Vital Signs": { icon: Thermometer, accent: "text-pink-600 bg-pink-100", tone: "pink", route: "/vital-signs" },
 };
 
 function statusTone(status: CategoryInsight["status"]) {
@@ -181,7 +181,7 @@ export default function AnalyticsPage() {
                 return (
                   <div key={category} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="mb-3 flex items-start gap-3">
-                      <div className={`rounded-xl p-2 ${meta.accent}`}>
+                      <div className={`rounded-2xl p-2.5 ${meta.accent} shadow-sm`}>
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -190,7 +190,7 @@ export default function AnalyticsPage() {
                       </div>
                     </div>
 
-                    <ProgressBar value={value} />
+                    <ProgressBar value={value} tone={meta.tone} />
                   </div>
                 );
               })}

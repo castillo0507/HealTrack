@@ -60,6 +60,46 @@ body :where([class*="text-slate-"], [class*="text-gray-"], [class*="text-zinc-"]
   border-radius: 9999px;
 }
 
+.healtrack-progress.tone-emerald::-webkit-progress-value,
+.healtrack-progress.tone-emerald::-moz-progress-bar {
+  background-color: #10b981;
+}
+
+.healtrack-progress.tone-rose::-webkit-progress-value,
+.healtrack-progress.tone-rose::-moz-progress-bar {
+  background-color: #f43f5e;
+}
+
+.healtrack-progress.tone-violet::-webkit-progress-value,
+.healtrack-progress.tone-violet::-moz-progress-bar {
+  background-color: #8b5cf6;
+}
+
+.healtrack-progress.tone-sky::-webkit-progress-value,
+.healtrack-progress.tone-sky::-moz-progress-bar {
+  background-color: #0ea5e9;
+}
+
+.healtrack-progress.tone-indigo::-webkit-progress-value,
+.healtrack-progress.tone-indigo::-moz-progress-bar {
+  background-color: #4f46e5;
+}
+
+.healtrack-progress.tone-orange::-webkit-progress-value,
+.healtrack-progress.tone-orange::-moz-progress-bar {
+  background-color: #f97316;
+}
+
+.healtrack-progress.tone-cyan::-webkit-progress-value,
+.healtrack-progress.tone-cyan::-moz-progress-bar {
+  background-color: #06b6d4;
+}
+
+.healtrack-progress.tone-pink::-webkit-progress-value,
+.healtrack-progress.tone-pink::-moz-progress-bar {
+  background-color: #ec4899;
+}
+
 .dashboard-meter {
   appearance: none;
   width: 100%;

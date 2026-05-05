@@ -4,6 +4,11 @@ import { Download, FileText, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { AuthGuard } from "@/components/auth-guard";
 import { Card } from "@/components/ui";
+import { useState } from "react";
+import { useHealth } from "@/lib/health-store";
+import { buildCategoryProgress } from "@/lib/progress";
+import { buildInsightsReport } from "@/lib/insights";
+import { exportAllDataPdf, type ExportAllDataInput } from "@/lib/export-report";
 
 export default function PrivacyPage() {
   return (
@@ -28,13 +33,17 @@ export default function PrivacyPage() {
           <Card>
             <h3 className="mb-3 font-black text-slate-800 dark:text-slate-100">Your Data Rights</h3>
             <div className="space-y-2">
-              <button type="button" className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2 font-semibold text-slate-700 transition hover:border-brand-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                <Download className="h-4 w-4" /> Export All Data (JSON)
-              </button>
-              <button type="button" className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2 font-semibold text-slate-700 transition hover:border-brand-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <ExportButtons />
+              <button
+                type="button"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2 font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
                 <FileText className="h-4 w-4" /> View Data Usage Report
               </button>
-              <button type="button" className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-300 bg-red-50 py-2 font-semibold text-red-600 transition hover:bg-red-100 dark:bg-red-900/20">
+              <button
+                type="button"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-300 bg-white py-2 font-semibold text-red-600 transition hover:bg-slate-100"
+              >
                 <Trash2 className="h-4 w-4" /> Delete All My Data
               </button>
             </div>
@@ -42,5 +51,107 @@ export default function PrivacyPage() {
         </div>
       </AppShell>
     </AuthGuard>
+  );
+}
+
+function ExportButtons() {
+  const { profile, goals, categories, today, weeklyData, monthlyData, workouts, nutritionEntries, heartRateEntries, vitalSignsEntries, streak } = useHealth();
+  const [isExporting, setIsExporting] = useState(false);
+
+  async function handleExport() {
+    try {
+      setIsExporting(true);
+
+      const progress = buildCategoryProgress({
+        goals,
+        today: {
+          steps: today.steps,
+          caloriesBurned: today.caloriesBurned,
+          waterCups: today.waterCups,
+          sleepHours: today.sleepHours,
+          nutritionCalories: today.nutritionCalories,
+          nutritionProteinGrams: today.nutritionProteinGrams,
+          nutritionFiberGrams: today.nutritionFiberGrams,
+          nutritionSodiumMg: today.nutritionSodiumMg,
+        },
+        workouts,
+        nutritionEntries,
+        heartRateEntries,
+        vitalSignsEntries,
+      });
+
+      const insights = buildInsightsReport({
+        categories,
+        goals,
+        today: {
+          steps: today.steps,
+          caloriesBurned: today.caloriesBurned,
+          waterCups: today.waterCups,
+          sleepHours: today.sleepHours,
+          sleepQuality: today.sleepQuality,
+          nutritionCalories: today.nutritionCalories,
+          nutritionProteinGrams: today.nutritionProteinGrams,
+          nutritionCarbsGrams: today.nutritionCarbsGrams,
+          nutritionFatGrams: today.nutritionFatGrams,
+          nutritionFiberGrams: today.nutritionFiberGrams,
+          nutritionSugarGrams: today.nutritionSugarGrams,
+          nutritionSodiumMg: today.nutritionSodiumMg,
+        },
+        weeklyData,
+        workouts,
+        nutritionEntries,
+        heartRateEntries,
+        vitalSignsEntries,
+      });
+
+      const payload: ExportAllDataInput = {
+        profile: { name: profile.name, email: profile.email },
+        goals,
+        categories,
+        today: {
+          steps: today.steps,
+          caloriesBurned: today.caloriesBurned,
+          waterCups: today.waterCups,
+          sleepHours: today.sleepHours,
+          sleepQuality: today.sleepQuality,
+          nutritionCalories: today.nutritionCalories,
+          nutritionProteinGrams: today.nutritionProteinGrams,
+          nutritionCarbsGrams: today.nutritionCarbsGrams,
+          nutritionFatGrams: today.nutritionFatGrams,
+          nutritionFiberGrams: today.nutritionFiberGrams,
+          nutritionSugarGrams: today.nutritionSugarGrams,
+          nutritionSodiumMg: today.nutritionSodiumMg,
+        },
+        streak: streak ?? 0,
+        progress,
+        insights,
+        weeklyData,
+        monthlyData,
+        workouts,
+        nutritionEntries,
+        heartRateEntries,
+        vitalSignsEntries,
+      };
+
+      // generate and save pdf
+      exportAllDataPdf(payload);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Export failed", e);
+      // we could surface a toast here later
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleExport}
+      disabled={isExporting}
+      className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-2 font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-60"
+    >
+      <Download className="h-4 w-4" /> {isExporting ? "Exporting report..." : "Export All Data (PDF)"}
+    </button>
   );
 }

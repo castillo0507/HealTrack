@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
@@ -8,14 +8,14 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
   );
 }
 
-export function ProgressBar({ value, className = "" }: { value: number; className?: string }) {
+export function ProgressBar({ value, className = "", tone = "brand" }: { value: number; className?: string; tone?: "brand" | "emerald" | "rose" | "violet" | "sky" | "indigo" | "orange" | "cyan" | "pink" }) {
   const safe = Math.max(0, Math.min(100, value));
 
   return (
     <progress
       max={100}
       value={safe}
-      className={`healtrack-progress h-3 w-full overflow-hidden rounded-full bg-slate-200 ${className}`}
+      className={`healtrack-progress tone-${tone} h-3 w-full overflow-hidden rounded-full bg-slate-200 ${className}`}
     />
   );
 }

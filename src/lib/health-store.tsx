@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase";
+import { defaultProfileAvatar, type ProfileAvatarId } from "../components/profile-avatar";
 
 export type SleepQuality = "Poor" | "Fair" | "Good" | "Excellent";
 
@@ -74,6 +75,7 @@ type HealthGoals = {
 type Profile = {
   name: string;
   email: string;
+  avatar: ProfileAvatarId;
 };
 
 type AccountData = {
@@ -135,6 +137,7 @@ type HealthContextValue = HealthState & {
   addVitalSigns: (entry: Omit<VitalSignsEntry, "id" | "date">) => void;
   updateGoals: (goals: Partial<HealthGoals>) => void;
   updateProfile: (profile: Partial<Profile>) => void;
+  updatePassword: (password: string) => void;
   toggleCategory: (category: string) => void;
   refreshTip: () => void;
   toggleDarkMode: () => void;
@@ -245,7 +248,7 @@ function computeStreak(activityDays: string[] | undefined) {
 }
 
 function makeGuestState(): HealthState {
-  const guestData = makeEmptyAccountData({ name: "", email: "" });
+  const guestData = makeEmptyAccountData({ name: "", email: "", avatar: defaultProfileAvatar });
 
   return {
     ...guestData,
@@ -289,6 +292,7 @@ function normalizeAccountData(data: Partial<AccountData> | undefined, fallbackPr
     profile: {
       ...base.profile,
       ...(data?.profile ?? {}),
+      avatar: data?.profile?.avatar ?? base.profile.avatar,
     },
     goals: {
       ...base.goals,
@@ -515,7 +519,7 @@ async function fetchSnapshotFromSupabase(userId: string, fallbackEmail = ""): Pr
   const todayRow = (todayRes.data && todayRes.data.length > 0) ? todayRes.data[0] : null;
   const categories = (categoriesRes.data ?? []).filter((r: any) => r.is_enabled).map((r: any) => r.category);
 
-  const account: AccountData = makeEmptyAccountData({ name: profileRow?.name ?? "", email: profileRow?.email ?? fallbackEmail });
+  const account: AccountData = makeEmptyAccountData({ name: profileRow?.name ?? "", email: profileRow?.email ?? fallbackEmail, avatar: defaultProfileAvatar });
 
   if (goalsRow) {
     account.goals = {
@@ -1216,6 +1220,7 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
             ...prev.profile,
             ...profile,
             email: targetEmail,
+            avatar: profile.avatar ?? prev.profile.avatar,
           };
 
           updatedData = {
@@ -1245,6 +1250,30 @@ export function HealthProvider({ children }: { children: React.ReactNode }) {
         if (updatedData && supabaseUserId) {
           syncActiveAccount(updatedData);
         }
+      },
+      updatePassword: (password) => {
+        if (!password) {
+          return;
+        }
+
+        setState((prev) => {
+          if (!prev.currentUserEmail || !prev.accounts[prev.currentUserEmail]) {
+            return prev;
+          }
+
+          const email = prev.currentUserEmail;
+
+          return {
+            ...prev,
+            accounts: {
+              ...prev.accounts,
+              [email]: {
+                ...prev.accounts[email],
+                password,
+              },
+            },
+          };
+        });
       },
       toggleCategory: (category) => {
         let updatedData: AccountData | null = null;

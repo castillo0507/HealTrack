@@ -92,7 +92,7 @@ function colorForStatus(status: string) {
 
 function makePdf(filename: string) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  (doc as any).setAutoPageBreak(false);
+  // jsPDF v4 doesn't expose setAutoPageBreak; we manage pagination manually
   doc.setDrawColor(226, 232, 240);
   doc.setTextColor(30, 41, 59);
   doc.setFont("helvetica", "normal");
